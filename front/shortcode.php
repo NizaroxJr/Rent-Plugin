@@ -194,7 +194,7 @@ function RpShowProducts($atts){
 
     
      <tr>
-    <td><strong>Quantity</strong></td>
+    <td ><strong>Quantity</strong></td>
     <td><input type="number" name="Quantity" min="1" max="'.$r[0]['pQuantity'].'" class="required"></td>
     </tr>
       <tr>
