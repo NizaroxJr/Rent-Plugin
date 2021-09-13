@@ -36,10 +36,23 @@ function RpShowProducts($atts){
 	<td ><strong>'.$r[0]['Pname'].'</strong></td>
 	<td width="100%">'.$img .'</td>
 	</tr>
-
+  
+  
 	<tr>
-	<td ><strong>Rent Price</strong></td>
-	<td>'.$r[0]['rPrice'].'$ '.$r[0]['time'].'</td>
+	<td ><strong>Hourly Rent Price</strong></td>
+	<td>'.$r[0]['HourlyRPrice'].'$ </td>
+	</tr>
+  <tr>
+	<td ><strong>Daily Rent Price</strong></td>
+	<td>'.$r[0]['DailyRPrice'].'$ </td>
+	</tr>
+  <tr>
+	<td ><strong>Weekly Rent Price</strong></td>
+	<td>'.$r[0]['WeeklyRPrice'].'$ </td>
+	</tr>
+  <tr>
+	<td ><strong>Monthly Rent Price</strong></td>
+	<td>'.$r[0]['MonthlyRPrice'].'$ </td>
 	</tr>
 
 	<tr>
@@ -102,75 +115,94 @@ function RpShowProducts($atts){
 
       <h4>Order Information</h4>
 
+<label for="RentType"><strong>Choose a Rent Type:</strong></label>
+
+<select id="RentType" onchange="RentTypeHandler(value);">
+  <option value="Hourly">Hourly</option>
+  <option value="Daily">Daily</option>
+  <option value="Weekly">Weekly</option>
+  <option value="Monthly">Monthly</option>
+</select>
+
+    
+
 		<table width="100%" border="0" >
         
        ';
 
+      
 
-
-       if($r[0]['time']=="hourly"){
          
          
        $content.='
+    <tbody  id="hourlyRent">
        <tr>
        <td><strong>Rent Duration in hours</strong></td>
        <td>
        <input type="number" name="duration" class="required">
        </td>
-    </tr>
+       </tr>
+       </tbody>
+    
+    
     ';
-       }
-       elseif($r[0]['time']=="daily"){
+       
        $content.='
+       <tbody  id="dailyRent">
        <tr>
        <td><strong>Start Day</strong></td>
-       <td><input type="date" name="StartDate" min='.$DailyminDate.' onchange="RpCalendar()" class="required"></td>
+       <td><input type="date" name="StartDay" min='.$DailyminDate.' onchange="MinDay()" class="required"></td>
        </tr>
        <tr>
        <td><strong>End Day</strong></td>
-       <td><input type="date" name="EndDate" class="required"></td
+       <td><input type="date" name="EndDay" class="required"></td
        </tr>
+       </tbody>
       
     ';
-       }
-       elseif ($r[0]['time']=="weekly") {
+    
        $content.='
+       <tbody  id="weeklyRent">
        <tr>
        <td><strong>Start Week</strong></td>
-       <td><input type="week" name="StartDate"  min='.$weeklyMinDate.' onchange="RpCalendar()"  class="required"></td>
+       <td><input type="week" name="StartWeek"  min='.$weeklyMinDate.' onchange="MinWeek()"  class="required"></td>
        </tr>
        <tr>
        <td><strong>End Week</strong></td>
-       <td><input type="week" name="EndDate" class="required"></td
+       <td><input type="week" name="EndWeek" class="required"></td
        </tr>
+       </tbody>
        ';
-      }
-      else{
+      
          $content.='
+         <tbody  id="monthlyRent">
        <tr>
-       <td><strong>Start Month</strong></td>
-       <td><input type="month" name="StartDate"  min='.$monthlyminDate.' onchange="RpCalendar()" class="required"></td>
+       <td ><strong>Start Month</strong></td>
+       <td ><input type="month" name="StartMonth"  min='.$monthlyminDate.' onchange="MinMonth()" class="required"></td>
        </tr>
        <tr>
-       <td><strong>End Month</strong></td>
-       <td><input type="month" name="EndDate" class="required"></td
+       <td ><strong>End Month</strong></td>
+       <td><input type="month" name="EndMonth" class="required"></td
        </tr>
+       </tbody>
+       
        ';
-      }
+      
     
 
     $content.='
 
-    <tr>
+    
+     <tr>
     <td><strong>Quantity</strong></td>
     <td><input type="number" name="Quantity" min="1" max="'.$r[0]['pQuantity'].'" class="required"></td>
     </tr>
-    
-    
       <tr>
      <td><input type="submit" name="submit-app" value="Order Now" class="button"></td>
      </tr>
 
+
+     
    
     </table>
     
@@ -179,7 +211,8 @@ function RpShowProducts($atts){
     </form>
     
     </div>
-
+   
+    
 	 ';
 	
 		
@@ -200,7 +233,7 @@ function RpShowProducts($atts){
 	
 	 
 
-	$r = $wpdb->get_results("SELECT SQL_CALC_FOUND_ROWS `ProductID`, `Pname`, `pQuantity`, `photo`, `description`, `time`, `duration`, `rPrice`, `rStatus` FROM ".$wpdb->prefix . "rp_products LIMIT 0, 100; ", ARRAY_A);				
+  $r = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix . "rp_products ; ", ARRAY_A);			
 	     
 	    $PUrl=get_option('rp_application_link');
 
@@ -237,7 +270,7 @@ for($i=0; $i<count($r); $i++){
 		$content .='<tr>
 		<td>'.	$img .'</td>
 		<td>'.$r[$i]['Pname'].'</td>
-	<td>'.$r[$i]['rPrice'].'$ '.$r[$i]['time'].'</td>';
+	<td>Starting At '.$r[$i]['HourlyRPrice'].'$</td>';
 	
   if($r[$i]['rStatus'] =="Out Of Stock"   ){
         $content .='	<td>
@@ -299,8 +332,6 @@ function GetFormData() {
      
     $CID = $insert1['ClientID'];
     $PID=$_GET['ProductID'];
-    $StartDate = $_POST['StartDate'];
-    $EndDate = $_POST['EndDate'];
     $Quantity = $_POST['Quantity'];
 	
     //No Duplicate User
@@ -316,7 +347,7 @@ function GetFormData() {
     }
     
     //Updating Product Quantity
-    $p=$wpdb->get_results("SELECT pQuantity,time,rPrice,Pname,description,photo FROM ".$wpdb->prefix . "rp_products where ProductID = ".$PID."", ARRAY_A);
+    $p=$wpdb->get_results("SELECT * FROM ".$wpdb->prefix . "rp_products where ProductID = ".$PID."", ARRAY_A);
     
     $newQuantity=$p[0]['pQuantity'] - $insert2['Quantity'];
     
@@ -327,24 +358,48 @@ function GetFormData() {
     
      
     //Total Price Calculation
-    if($p[0]['time'] =="daily" ){
+    if($_POST['StartDay'] ){
+    
+    $StartDay=$_POST['StartDay'];
+    $EndDay=$_POST['EndDay'];
 
-    $Yduration =number_format(substr($EndDate, 2, 2)) -number_format(substr($StartDate, 2, 2));
-    $Mduration =number_format(substr($EndDate, 5, 2)) -number_format(substr($StartDate, 5, 2));
-    $Dduration =number_format(substr($EndDate, 8, 2)) -number_format(substr($StartDate, 8, 2));
+    $Yduration =number_format(substr($EndDay, 2, 2)) -number_format(substr($StartDay, 2, 2));
+    $Mduration =number_format(substr($EndDay, 5, 2)) -number_format(substr($StartDay, 5, 2));
+    $Dduration =number_format(substr($EndDay, 8, 2)) -number_format(substr($StartDay, 8, 2));
     $TotalDuration=360*$Yduration+30*$Mduration+$Dduration;
+
+    $StartDate = $_POST['StartDay'];
+    $EndDate = $_POST['EndDay'];
+    $TotalPrice= $TotalDuration*$p[0]['DailyRPrice']*$Quantity;
     
     }
-    elseif($p[0]['time'] =="weekly" ){
-    $Yduration =number_format(substr($EndDate, 2, 2)) -number_format(substr($StartDate, 2, 2));
-    $Wduration =number_format(substr($EndDate, 7, 2)) -number_format(substr($StartDate, 7, 2));
+    elseif($_POST['StartWeek'] ){
+    $StartWeek=$_POST['StartWeek'];
+    $EndWeek=$_POST['EndWeek'];
+
+    $Yduration =number_format(substr($EndWeek, 2, 2)) -number_format(substr($StartWeek, 2, 2));
+    $Wduration =number_format(substr($EndWeek, 7, 2)) -number_format(substr($StartWeek, 7, 2));
     $TotalDuration=52*$Yduration+$Wduration;
+
+    $StartDate = $_POST['StartWeek'];
+    $EndDate = $_POST['EndWeek'];
+    $TotalPrice= $TotalDuration*$p[0]['WeeklyRPrice']*$Quantity;
+
     
     }
-    elseif($p[0]['time'] =="monthly"){
-    $Yduration =number_format(substr($EndDate, 2, 2)) -number_format(substr($StartDate, 2, 2));
-    $Mduration =number_format(substr($EndDate, 5, 2)) -number_format(substr($StartDate, 5, 2));
+    elseif($_POST['StartMonth']){
+    $StartMonth=$_POST['StartMonth'];
+    $EndMonth=$_POST['EndMonth'];
+    
+    $Yduration =number_format(substr($EndMonth, 2, 2)) -number_format(substr($StartMonth, 2, 2));
+    $Mduration =number_format(substr($EndMonth, 5, 2)) -number_format(substr($StartMonth, 5, 2));
     $TotalDuration=12*$Yduration+$Mduration;
+    
+
+    $StartDate = $_POST['StartMonth'];
+    $EndDate = $_POST['EndMonth'];
+    $TotalPrice= $TotalDuration*$p[0]['MonthlyRPrice']*$Quantity;
+    
     }
     else{
       $TotalDuration=$_POST['duration'];
@@ -390,13 +445,12 @@ function GetFormData() {
       }
       
       $EndDate="$day/$m/$y $h";
+      $TotalPrice= $TotalDuration*$p[0]['HourlyRPrice']*$Quantity;
+
+      
     }
 
-    $TotalPrice= $TotalDuration*$p[0]['rPrice']*$Quantity;
-
-
     
-
     //Order Insert
     $table_name = $wpdb->prefix . 'rp_orders';
 		$query2="INSERT INTO $table_name(PID,CID,StartDate,EndDate,Quantity,Price,duration,Status) VALUES('$PID', '$CID','$StartDate','$EndDate', '$Quantity', '$TotalPrice', '$TotalDuration','Processing')";

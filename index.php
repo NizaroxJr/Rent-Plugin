@@ -10,7 +10,6 @@ Author URI: https://github.com/NizaroxJr
 
 
 
-
 include 'includes/functions.php';
 include 'admin/options.php';
 include 'admin/orders.php';
@@ -19,6 +18,8 @@ include 'admin/clients.php';
 include 'admin/pickup.php';
 include 'admin/return.php';
 include 'front/shortcode.php';
+include 'admin/customPost.php';
+
 
 add_action('admin_menu', 'rp_menu');
 
@@ -53,8 +54,10 @@ CREATE TABLE ".$wpdb->prefix . "rp_products (
   pQuantity int(11) NOT NULL,
   photo varchar(255) NOT NULL,
   description text NOT NULL,
-  time varchar(255) NOT NULL,
-  rPrice FLOAT(10,2) NOT NULL,
+  HourlyRPrice FLOAT(10,2) NOT NULL,
+  DailyRPrice FLOAT(10,2) NOT NULL,
+  WeeklyRPrice FLOAT(10,2) NOT NULL,
+  MonthlyRPrice FLOAT(10,2) NOT NULL,
   rStatus varchar(255) NOT NULL,
   PRIMARY KEY (ProductID)
 ) ;
@@ -97,22 +100,23 @@ register_activation_hook(__FILE__,'rp_init');
 
 
 
-
-function RpCSS() {
-    wp_register_style('RpCSS', plugins_url('style.css',__FILE__ ));
-    wp_enqueue_style('RpCSS');
+function wpb_adding_styles() {
+wp_register_style('my_stylesheet', plugins_url('style.css', __FILE__));
+wp_enqueue_style('my_stylesheet');
 }
-add_action( 'admin_init','RpCSS');
-add_action( 'wp_enqueue_scripts', 'RpJs' ); 
-add_action( 'admin_enqueue_scripts', 'RpJs' ); 
 
-function RpJs() {
- 
-wp_register_script('RpJs', plugins_url('Calendar.js', __FILE__,array('jquery') ,'', false));
- 
-wp_enqueue_script('RpJs');
-}
   
+function wpb_adding_scripts() {
+ 
+wp_register_script('my_amazing_script', plugins_url('index.js', __FILE__), array('jquery'),'1.1', true);
+ 
+wp_enqueue_script('my_amazing_script');
+}
+
+add_action( 'wp_enqueue_scripts', 'wpb_adding_styles' ); 
+add_action( 'admin_enqueue_scripts','wpb_adding_styles');
+add_action( 'wp_enqueue_scripts', 'wpb_adding_scripts' ); 
+add_action( 'admin_enqueue_scripts', 'wpb_adding_scripts' );  
 
 
 function rp_menu() {

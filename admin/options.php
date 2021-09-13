@@ -42,7 +42,7 @@ function RpOptionsPage(){
   
    
          <tr>
-    <td width="300"><strong>Products Page full url</strong><br><em>full url to Products page which contains All Products. Please put the shortcode [rp_products] on the page.</td>
+    <td width="300"><strong>full url to Products page. <br>Please put the shortcode [rp_products] on the page In Products .</strong><br><em></td>
     <td><input type="text" name="rp_application_link"  value="'.get_option('rp_application_link').'"  size=80"> </td>
     
   </tr>

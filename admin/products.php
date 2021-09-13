@@ -11,9 +11,10 @@ if($_POST['add'] != ""){
         $Pname = $_POST['Pname'];
 		$pQuantity=$_POST['pQuantity'];
 		$description= $_POST['description'];
-		$time = $_POST['time'];
-		$duration= $_POST['duration'];
-		$rPrice= $_POST['rPrice'];
+		$HourlyRPrice= $_POST['HourlyRPrice'];
+		$DailyRPrice= $_POST['DailyRPrice'];
+		$WeeklyRPrice= $_POST['WeeklyRPrice'];
+		$MonthlyRPrice= $_POST['MonthlyRPrice'];
         $rStatus= $_POST['rStatus'];
 	  
 		
@@ -21,11 +22,10 @@ if($_POST['add'] != ""){
 		$photo = 	$location['url'];	
 		
         	$table_name = $wpdb->prefix . 'rp_products';
-			$query="INSERT INTO $table_name(Pname,pQuantity,photo,description,time,duration,rPrice,rStatus) VALUES('$Pname', '$pQuantity','$photo','$description', '$time', '$duration', '$rPrice','$rStatus')";
+			$query="INSERT INTO $table_name(Pname,pQuantity,photo,description,HourlyRPrice,DailyRPrice,WeeklyRPrice,MonthlyRPrice,rStatus) VALUES('$Pname', '$pQuantity','$photo','$description', '$HourlyRPrice','$DailyRPrice','$WeeklyRPrice','$MonthlyRPrice',  '$rStatus')";
 		     $wpdb->query($query);
 		
 		 
-		
 		
       
 		RpRedirect('admin.php?page=RpProducts');
@@ -40,7 +40,7 @@ $content .= '
  <input type="hidden" name="id" value="'.$r[0]['ProductID'].'">
   <table class="wp-list-table widefat fixed posts" id="Rptable" cellspacing="0">
 	
-	<tbody>
+	
 	<tr>
 	<td>Product Name</td>
 	<td><input type="text" name="Pname" value="" required></td>
@@ -48,28 +48,31 @@ $content .= '
 
 	<tr>
 		<td>Quantity</td>
-	<td><input type="text" name="pQuantity" value="" required></td>
+	<td><input type="number" name="pQuantity" value="" required></td>
 	</tr>
 	<tr>
 		<td>Description</td>
 	<td><input type="text" style="width:400px; height:100px;" name="description" value="" required></td>
 	</tr>
-    <tr>
-		<td>Time</td>
-	  <td>
-         <select name="time" id="time">
-                 <option value="hourly">Hourly</option>
-             <option value="daily">Daily</option>
-             <option value="weekly">Weekly</option>
-             <option value="monthly">Monthly</option>
-        </select>
-      </td>
-	</tr>
+    
+
     
 
 	<tr>
-		<td>Rent Price</td>
-	<td><input type="text" name="rPrice" value="" required></td>
+		<td>Hourly Rent Price</td>
+	<td><input type="number" name="HourlyRPrice" value="" required></td>
+	</tr>
+	<tr>
+		<td>Daily Rent Price</td>
+	<td><input type="number" name="DailyRPrice" value="" required></td>
+	</tr>
+	<tr>
+		<td>Weekly Rent Price</td>
+	<td><input type="number" name="WeeklyRPrice" value="" required></td>
+	</tr>
+	<tr>
+		<td>Monthly Rent Price</td>
+	<td><input type="number" name="MonthlyRPrice" value="" required></td>
 	</tr>
 	    
 
@@ -89,7 +92,7 @@ $content .= '
 	<td></td>
 	<td><input type="submit" name="add" value="Add Product"></td>
 	</tr>
-	</tbody>
+	
 </table>
 </form>
 <p><br></p>
@@ -114,8 +117,10 @@ if($_POST['edit'] != ""){
 		               $pQuantity=$_POST['pQuantity'];
 		               $photo = $_FILES['photo']['name'];
 		               $description= $_POST['description'];
-		               $time = $_POST['time'];
-		               $duration= $_POST['duration'];
+		               $HourlyRPrice= $_POST['HourlyRPrice'];
+		               $DailyRPrice= $_POST['DailyRPrice'];
+		               $WeeklyRPrice= $_POST['WeeklyRPrice'];
+		               $MonthlyRPrice= $_POST['MonthlyRPrice'];
 		               $rPrice= $_POST['rPrice'];
                        $rStatus= $_POST['rStatus'];
 
@@ -125,11 +130,12 @@ if($_POST['edit'] != ""){
 
                         $table_name = $wpdb->prefix . 'rp_products';
 		               $query.="UPDATE $table_name " ;
-		               $query.="SET Pname='$Pname'  , pQuantity='$pQuantity',photo='$photo',description='$description',time='$time',duration='$duration',rPrice='$rPrice',rStatus='$rStatus'";
+		               $query.="SET Pname='$Pname'  , pQuantity='$pQuantity', HourlyRPrice='$HourlyRPrice' , DailyRPrice='$DailyRPrice' , WeeklyRPrice='$WeeklyRPrice' , MonthlyRPrice='$MonthlyRPrice' ,photo='$photo',description='$description',rStatus='$rStatus'";
 		               $query.="WHERE ProductID='$ProductID'";
 	                   $wpdb->query($query );	
-
-                   RpRedirect('admin.php?page=RpProducts');
+                    
+					   echo $query;
+                   //RpRedirect('admin.php?page=RpProducts');
 	               }
 
    $r = $wpdb->get_results("SELECT *  FROM ".$wpdb->prefix . "rp_products where ProductID = '".$wpdb->escape($_GET['ProductID'])."'", ARRAY_A);
@@ -155,20 +161,22 @@ if($_POST['edit'] != ""){
 	<td><input type="text" style="width:400px; height:100px;" name="description" value="'.$r[0]['description'].'" required"></td>
 	</tr>
     <tr>
-		<td>Time</td>
-	  <td>
-         <select name="time" id="time" >
-            <option value="hourly">Hourly</option>
-             <option value="daily">Daily</option>
-             <option value="weekly">Weekly</option>
-             <option value="monthly">Monthly</option>
-        </select>
-      </td>
-	</tr>
-    
+	
 	<tr>
-		<td>Rent Price</td>
-	<td><input type="text" name="rPrice" value="'.$r[0]['rPrice'].'" required"></td>
+		<td>Hourly Rent Price</td>
+	<td><input type="number" name="HourlyRPrice" value="'.$r[0]['HourlyRPrice'].'" required></td>
+	</tr>
+	<tr>
+		<td>Daily Rent Price</td>
+	<td><input type="number" name="DailyRPrice" value="'.$r[0]['DailyRPrice'].'" required></td>
+	</tr>
+	<tr>
+		<td>Weekly Rent Price</td>
+	<td><input type="number" name="WeeklyRPrice" value="'.$r[0]['WeeklyRPrice'].'" required></td>
+	</tr>
+	<tr>
+		<td>Monthly Rent Price</td>
+	<td><input type="number" name="MonthlyRPrice" value="'.$r[0]['MonthlyRPrice'].'" required></td>
 	</tr>
 
 	 <tr>
@@ -183,7 +191,7 @@ if($_POST['edit'] != ""){
 
 	    <tr>
 		<td>Add Image<td>
-	<td><input type="file" name="photo" value="Add Image" required></td>
+	<td><input type="file" name="photo" value="'.$r[0]['photo'].'" required></td>
 		<tr>
 	<td></td>
 	<td><input type="submit" name="edit" value="Edit Product"></td>
@@ -258,7 +266,10 @@ function RpManageProducts(){
         <td>'.$r[$i]['ProductID'].'</td>
 		<td>'.$r[$i]['Pname'].'</td>
 		<td>'.$r[$i]['pQuantity'].'</td>
-        <td>'.$r[$i]['rPrice'].'$ '.$r[$i]['time'].' </td>';
+        <td>
+		Starting at 
+		'.$r[$i]['HourlyRPrice'].'$ hourly
+		</td>';
 
 
         if($r[$i]['pQuantity'] ==0){
